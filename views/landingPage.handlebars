@@ -1,0 +1,46 @@
+<h2>User Registration</h2> <br> <br>
+{{#if errors}}
+        {{#each errors}}
+                <div class="alert alert-danger">{{msg}}</div>
+        {{/each}}
+{{/if}}  
+<form action="/register" method="post">
+<fieldset>
+		<label for="fullName">Full Name:</label>
+        <input type="text" id="name" name="fullName" placeholder="Enter your full name" /><br>
+
+        <label for="email">Email:</label>
+        <input type="email" id="email" name="emailId" placeholder="Enter your email address" /><br>
+
+        <label for="phoneNumber">Phone Number:</label>
+        <input type="number" id="phoneNumber" name="phoneNumber" placeholder="Enter your mobile number" /><br>
+
+        <label for="password">Password:</label>
+        <input type="password" id="password" name="password" placeholder="Enter your password" /><br>
+
+        <label for="referralCode">Referral code:</label>
+        <input type="text" id="referralCode" name="referralCode" placeholder="Referral code(optional)" /><br>
+
+        <input type="submit" value="Register">
+
+	</fieldset> 
+</form>
+<br><br>
+
+<h2>User Login</h2> <br> <br>
+<form action="/login" method="post">
+<fieldset>
+
+        <label for="email">Email:</label>
+        <input type="email" id="email" name="emailId" placeholder="Enter your email address" /><br>
+
+        <label for="password">Password:</label>
+        <input type="password" id="password" name="password" placeholder="Enter your password" /><br>
+
+        <input type="submit" value="Sign In">
+
+</fieldset> 
+</form>
+<br><br>
+Welcome to Home Page!!!
+

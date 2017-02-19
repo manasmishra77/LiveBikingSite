@@ -1,0 +1,29 @@
+{
+  "name": "livebikingsite",
+  "version": "0.0.0",
+  "private": true,
+  "scripts": {
+    "start": "node ./bin/www"
+  },
+  "dependencies": {
+    "bcryptjs": "*",
+    "connect-flash": "*",
+    "express-handlebars": "*",
+    "express-messages": "*",
+    "express-session": "*",
+    "express-validator": "*",
+    "body-parser": "~1.16.0",
+    "cookie-parser": "~1.4.3",
+    "debug": "~2.6.0",
+    "express": "~4.14.1",
+    "jade": "~1.11.0",
+    "jsonwebtoken": "^7.3.0",
+    "mongoose": "^4.8.3",
+    "morgan": "~1.7.0",
+    "serve-favicon": "~2.3.2",
+    "passport": "^0.2.0",
+    "passport-facebook": "^1.0.3",
+    "passport-google": "^0.3.0",
+    "passport-local": "^1.0.0"
+  }
+}
