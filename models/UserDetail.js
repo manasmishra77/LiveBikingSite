@@ -1,4 +1,5 @@
 var mongoose = require('mongoose');
+var bcrypt = require('bcryptjs');
 
 var UserDetailSchema = new mongoose.Schema({
 	fullName: {type: String, required: true},
@@ -15,8 +16,9 @@ var UserDetail = mongoose.model('UserDetail', UserDetailSchema);
 
 module.exports = UserDetail;
 
-module.exports.getUserByUserName = function(userName, callback){
-	var query = {username: username};
+module.exports.getUserByUserName = function(username, callback){
+	console.log('Unknown user11111');
+	var query = {emailId: username};
 	UserDetail.findOne(query, callback);
 }
 
@@ -24,6 +26,7 @@ module.exports.comparePassword = function(candidatePassword, hash, callback){
 	bcrypt.compare(candidatePassword, hash, function(err, isMatched) {
     // res === true 
     if(err) throw err;
+    console.log('is matched = '+ isMatched);
     callback(null, isMatched);
 });
 }

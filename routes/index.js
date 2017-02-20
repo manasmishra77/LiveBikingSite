@@ -31,20 +31,20 @@ router.post('/register', function(req,res){
 	}else{
 		console.log(' No');
 
-		var newerUser = new newUser({
-		fullName: req.body.fullName,
-		emailId: req.body.emailId,
-		password: req.body.password,
-		phoneNumber: req.body.phoneNumber,
-		referralCode: req.body.referralCode,
-		updated_at: new Date(),
-	});
+		
 
 	bcrypt.genSalt(10, function(err, salt) {
     bcrypt.hash(password, salt, function(err, hash) {
         // Store hash in your password DB. 
         password = hash;
-
+        var newerUser = new newUser({
+		fullName: req.body.fullName,
+		emailId: req.body.emailId,
+		password: password,
+		phoneNumber: req.body.phoneNumber,
+		referralCode: req.body.referralCode,
+		updated_at: new Date(),
+	});
         newerUser.save(function(err){
 		if(err) 
 		{
@@ -70,22 +70,33 @@ router.post('/register', function(req,res){
 });
 
 passport.use(new LocalStrategy(
+{
+	usernameField: 'emailId',
+	passwordField: 'password'
+
+},
   function(username, password, done) {
-    newerUser.getUserByUserName(username, function(err, user){
-    	if(err) throw err;
+    newUser.getUserByUserName(username, function(err, user){
+    	if(err) {
+    		console(err);
+    	}
     	if(!user){
     		return done(null, false, {message: 'Unknown user!'});
     	}
-    	newerUser.comparePassword(password, user.password, function(err, isMatched){
-    		if(err) throw err;
+    	newUser.comparePassword(password, user.password, function(err, isMatched){
+    		console.log('wrong password user.password' + user.password);
+    		if(err) {
+    			console('123'+err);
+    		}
     	if(isMatched){
     		return done(null, user);
     	}else{
+    		console.log('wrong password');
     		return done(null, false, {message: 'password does not match'});
     	}
 
-    	})
-    })
+    	});
+    });
   }
 ));
 passport.serializeUser(function(user, done) {
@@ -93,13 +104,21 @@ passport.serializeUser(function(user, done) {
 });
 
 passport.deserializeUser(function(id, done) {
-  newerUser.getUserById(id, function(err, user) {
+  newUser.getUserById(id, function(err, user) {
     done(err, user);
   });
 });
 
-router.post('/login',passport.authenticate('local', {successRedirect: '/', failureRedirect: '/', failureFlash: true} ), function(req,res){
+router.post('/login',passport.authenticate('local'),
+	function(req,res){
+
+		var user = req.user.emailId;
+		if(user == 'adminwhole@livebiking.in'){
+			res.redirect('/admin');
+		}
+		else{
 		res.redirect('/');
+		}
 });
 
 module.exports = router;

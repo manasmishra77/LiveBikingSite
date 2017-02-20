@@ -1,0 +1,35 @@
+<table>
+  <tr>
+    <th>id</th><th>Bike Make and model</th>
+  </tr>
+  {{#each bikelist}}
+    <tr>
+      <td><%= bikelist[i].company%></td>
+      <td><%= bikelist[i].model %></td>
+      <td><%= bikelist[i].modelSpecification %></td>
+      <td><%= bikelist[i].yearOfManufacture %></td>
+      <td><%= bikelist[i].cc %></td>
+      <td><%= bikelist[i].aboutModel %></td>
+    </tr>
+  {{/each}}
+</table>
+<div class="container">
+        <nav>
+          <ul class="nav nav-pills pull-right">
+            <li role="presentation"><a href="/admin/addbike">Add new bike</a></li>
+          </ul>
+        </nav>
+ </div>
+<form action="/addnew" method="post">
+<fieldset>
+
+        <label >Email:</label>
+        <input type="email" id="email" name="emailId" placeholder="Enter your email address" /><br>
+
+        <label for="password">Password:</label>
+        <input type="password" id="password" name="password" placeholder="Enter your password" /><br>
+
+        <input type="submit" value="Sign In">
+
+</fieldset> 
+</form>

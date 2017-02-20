@@ -11,3 +11,7 @@ var BikeMakeModelSchema = new mongoose.Schema({
 var BikeMakeModel = mongoose.model('BikeMakeModel', BikeMakeModelSchema);
 
 module.exports = BikeMakeModel;
+
+module.exports.getListOfBikes = function(callback){
+	BikeMakeModel.find(callback);
+}
