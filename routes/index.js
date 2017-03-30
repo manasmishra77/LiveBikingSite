@@ -1,125 +1,182 @@
 var express = require('express');
 var router = express.Router();
 var newUser = require('../models/UserDetail.js');
-var bcrypt = require('bcryptjs');
-var passport = require('passport');
-var LocalStrategy = require('passport-local').Strategy;
+var mongoose = require('mongoose');
+var nev = require('email-verification')(mongoose);
+var newOffers = require('../models/offers.js');
+var utilities = require('../public/utilities/GeneralMethods.js');
 
-/* GET home page. */
-router.get('/', function(req, res) {
-  res.render('landingPage');
+//Configuration for email verification
+nev.configure({
+    verificationURL: 'http://livebiking.in/email-verification/${URL}',
+    persistentUserModel: newUser,
+    tempUserCollection: 'temp_NewUser',
+
+    transportOptions: {
+        service: 'Gmail',
+        auth: {
+            user: 'verifynewuserlivebiking@gmail.com',
+            pass:  '1234567890'
+        }
+    },
+    verifyMailOptions: {
+        from: 'Do Not Reply <verifynewuserlivebiking@gmail.com>',
+        subject: 'Please confirm account',
+        html: 'Click the following link to confirm your account:</p><p>${URL}</p>',
+        text: 'Please confirm your account by clicking the following link: ${URL}'
+    }
+}, function(error, options){
 });
+// generating the model, pass the User model defined earlier
+nev.generateTempUserModel(newUser);
+
+router.get('/', fuction(req, res){
+    res.render('landingPage');
+});
+
+//registration
 router.post('/register', function(req,res){
-	var name = req.body.fullName;
-	var emailId = req.body.emailId;
-	var phoneNumber = req.body.phoneNumber;
-	var password = req.body.password;
+    if(req.body){
+        if (req.body.offer != ''){
+            newOffers.getByUniqueId(req.body.offer, function(err, offer){
+                if(err){
+                    res.json({"code": 500, "status": "Error", "data": "Offer does not exist" + err});
+                }else if(offer){
+                    if(offer.offerName == "Referral"){
+                        var newRegister = newUser({
+                            fullName: req.body.fullName,
+                            emailId: req.body.emailId,
+                            password: req.body.password,
+                            phoneNumber: req.body.phoneNumber,
+                            offer: offer.id
+                        });
+                        nev.createTempUser(newRegister, function(err, existingPersistentUser, newTempUser){
+                                // some sort of error
+                                if(err){
+                                    res.json({"code": 500, "status": "Error", "data": "Try Again!!" + err});
+                                }
+                                // user already exists in persistent collection...
+                                if(existingPersistentUser){
+                                    res.json({"code": 200, "status": "User Exists", "data": "Please Login or use forgot password!"});
+                                }
+                                //a new user
+                                if(newTempUser){
+                                    var URL = newTempUser[nev.options.URLFieldName];
+                                    nev.sendVerificationEmail(email, URL, function(err, info){
+                                        if(err){
+                                            res.json({"code": 500, "status": "Error", "data": "Try Again!!" + err});
+                                        }
 
-	//Validation
-	req.checkBody('fullName', 'Name is required!').notEmpty();
-	req.checkBody('emailId', 'Email is required!123').isEmail();
-	req.checkBody('phoneNumber', 'phoneNumber is required!').notEmpty();
-	req.checkBody('password', 'password is required!').notEmpty();
+                                    });
+                                }// user already exists in temporary collection...
+                                else{
+                                    res.json({"code": 500, "status": "Confirmation already Sent", "data": "Kindly check inbox for verification!"});
+                                }
+                        });
+                        
+                    }else{
+                        res.json({"code": 500, "status": "Error", "data": "Offer does not exist!!"});
+                    }
+                }else{
+                    res.json({"code": 500, "status": "Error", "data": "Offer does not exist!!"});
+                }
+            });
+        }else{
+            var newRegister = newUser({
+                            fullName: req.body.fullName,
+                            emailId: req.body.emailId,
+                            password: req.body.password,
+                            phoneNumber: req.body.phoneNumber,
+                            offer: offer.id
+                        });
+            nev.createTempUser(newRegister, function(err, existingPersistentUser, newTempUser){
+                                // some sort of error
+                                if(err){
+                                    res.json({"code": 500, "status": "Error", "data": "Try Again!!" + err});
+                                }
+                                // user already exists in persistent collection...
+                                if(existingPersistentUser){
+                                    res.json({"code": 200, "status": "User Exists", "data": "Please Login or use forgot password!"});
+                                }
+                                //a new user
+                                if(newTempUser){
+                                    var URL = newTempUser[nev.options.URLFieldName];
+                                    nev.sendVerificationEmail(email, URL, function(err, info){
+                                        if(err){
+                                            res.json({"code": 500, "status": "Error", "data": "Try Again!!" + err});
+                                        }
 
-	var errors = req.validationErrors();
+                                    });
+                                }// user already exists in temporary collection...
+                                else{
+                                    res.json({"code": 500, "status": "Confirmation already Sent", "data": "Kindly check inbox for verification!"});
+                                }
+                        });
+        }
 
-	if(errors){
-		console.log(' Yes');
-		res.render('landingPage',{
-			errors: errors
-		});
-	}else{
-		console.log(' No');
 
-		
 
-	bcrypt.genSalt(10, function(err, salt) {
-    bcrypt.hash(password, salt, function(err, hash) {
-        // Store hash in your password DB. 
-        password = hash;
-        var newerUser = new newUser({
-		fullName: req.body.fullName,
-		emailId: req.body.emailId,
-		password: password,
-		phoneNumber: req.body.phoneNumber,
-		referralCode: req.body.referralCode,
-		updated_at: new Date(),
-	});
-        newerUser.save(function(err){
-		if(err) 
-		{
-			if(err.code == 11000){
-				console.log('User Exists!!');
-			}
-			else{
-			console.log('Database Error!!');
-				}
-			return;
-		}
-		console.log('User created!');
-		req.flash('success_msg','u r registered and can login!!');
-		res.redirect('/');
-		
-		});
-
+    }else{
+        res.json({"code": 500, "status": "Error", "token": "Body is not there!!"});
+    }
+});
+//Resend confirmation email
+router.post('/resendconfirmation', function(req, res){
+    nev.resendVerificationEmail(email, function(err, userFound) {
+      if (err) {
+        return res.status(404).send('ERROR: resending verification email FAILED');
+      }
+      if (userFound) {
+        res.json({"code": 200, "status": "Confirmation already Sent", "data": "Kindly check inbox for verification!"})
+      } else {
+        res.json({"code": 500, "status": "Confirmation Expired", "data": "Kindly sign up again!!"})
+              }
     });
-});
-	
-	}
-	
+
 });
 
-passport.use(new LocalStrategy(
-{
-	usernameField: 'emailId',
-	passwordField: 'password'
+//Callback after email verification
+router.get('/email-verification/:URL', function(req,res){
+    var url = req.params.URL;
 
-},
-  function(username, password, done) {
-    newUser.getUserByUserName(username, function(err, user){
-    	if(err) {
-    		console(err);
-    	}
-    	if(!user){
-    		return done(null, false, {message: 'Unknown user!'});
-    	}
-    	newUser.comparePassword(password, user.password, function(err, isMatched){
-    		console.log('wrong password user.password' + user.password);
-    		if(err) {
-    			console('123'+err);
-    		}
-    	if(isMatched){
-    		return done(null, user);
-    	}else{
-    		console.log('wrong password');
-    		return done(null, false, {message: 'password does not match'});
-    	}
-
-    	});
-    });
-  }
-));
-passport.serializeUser(function(user, done) {
-  done(null, user.id);
-});
-
-passport.deserializeUser(function(id, done) {
-  newUser.getUserById(id, function(err, user) {
-    done(err, user);
+  nev.confirmTempUser(url, function(err, user) {
+    if (user) {
+      nev.sendConfirmationEmail(user.email, function(err, info) {
+        if (err) {
+          return res.status(404).send('ERROR: sending confirmation email FAILED');
+        }
+        res.redirect('/login');
+      });
+    } else {
+      return res.status(404).send('ERROR: confirming temp user FAILED');
+    }
   });
+
 });
 
-router.post('/login',passport.authenticate('local'),
-	function(req,res){
 
-		var user = req.user.emailId;
-		if(user == 'adminwhole@livebiking.in'){
-			res.redirect('/admin');
-		}
-		else{
-		res.redirect('/');
-		}
+//authentication by login
+router.post('/login', function(req, res){
+        var userName = req.body.userName;
+        var password = req.body.password;
+
+        if (userName == "admin@livebiking.in"){
+                if (password == "admin@678"){
+                         var token = jwt.sign({data: userName}, 'superSecret', {
+                                expiresIn: '96h' // expires in 96 hours
+                         });
+                        //res.json({ "code": 200, "status": "success", "token": token });
+                        res.json({"code": 200, "status": "success", "token": token});
+
+                }else{
+                        res.json({"code": 500, "status": "Error", "data": "Wrong password"});
+                }
+        }else{
+                        res.json({"code": 500, "status": "Error", "data": "Wrong use id"});
+        }
 });
+
+
 
 module.exports = router;
 

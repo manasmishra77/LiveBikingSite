@@ -76,4 +76,10 @@ body {
   .jumbotron {
     border-bottom: 0;
   }
+  .selectedEngineOil {
+     background-color: #808080;
+  }
+  .selectedTableRow {
+     background-color: #808080;
+  }
 }

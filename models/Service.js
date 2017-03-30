@@ -5,10 +5,12 @@ var ServiceSchema = new mongoose.Schema({
 	duration: {type: String, required: true},
 	frequency: {type: String, required: true},
 	price: {type: Number, required: true},
-	aboutService: {type: String, required: true}
-	includeWashing: {type: Boolean, required: true}
+	aboutService: {type: String, required: true},
+	includeWashing: {type: Boolean, required: true},
+	updated_at: Date,
+	unique_Id: {type: String, unique: String},	
 	});
 
-var Service = mongoose.model('Service', ServiceSchema);
+var Service = mongoose.model('Service', ServiceSchema,'Service');
 
 module.exports = Service;

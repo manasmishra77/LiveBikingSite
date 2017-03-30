@@ -6,18 +6,30 @@ var UserDetailSchema = new mongoose.Schema({
 	emailId: {type: String, required: true, unique: true},
 	password: {type: String, required: true},
 	phoneNumber: {type: Number, required: true},
-	referralCode: {type: String},
+	offer: {type: mongoose.Schema.Types.ObjectId, ref: 'Offer'},
 	updated_at: Date,
-	//bikes: [{type: Schema.Types.ObjectId, ref: 'UserBikes'}],
-	address: [{type: mongoose.Schema.Types.ObjectId, ref: 'UserAddress'}]
+	bikeDetail: [{registrationNumber: String, bikeMakeModelId: {type: mongoose.Schema.Types.ObjectId, ref: 'UserBikes'}}],
+	address: [{type: mongoose.Schema.Types.ObjectId, ref: 'UserAddress'}],
+	unique_Id: {type: String, unique: String},
 });
 
-var UserDetail = mongoose.model('UserDetail', UserDetailSchema);
+var UserDetail = mongoose.model('UserDetail', UserDetailSchema,'UserDetail');
 
 module.exports = UserDetail;
 
+module.exports.registerUser = function(newUser, callback){
+var userRegistered = new UserDetail({
+	fullName: newUser.fullName,
+	emailId: newUser.emailId,
+	password: newUser.password,
+	phoneNumber: newUser.phoneNumber,
+	updated_at: newUser.updated_at,
+	unique_Id: newUser.unique_Id
+});
+userRegistered.save(callback);
+}
+
 module.exports.getUserByUserName = function(username, callback){
-	console.log('Unknown user11111');
 	var query = {emailId: username};
 	UserDetail.findOne(query, callback);
 }
@@ -32,5 +44,8 @@ module.exports.comparePassword = function(candidatePassword, hash, callback){
 }
 module.exports.getUserById = function(id, callback){
 	UserDetail.findById(id, callback);
+}
+module.exports.getUserByUniqueId = function(uniqueId, callback){
+	UserDetail.findOne(uniqueId,callback);
 }
 

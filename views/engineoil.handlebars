@@ -1,0 +1,199 @@
+
+<div class="container">
+        <nav>
+          <ul class="nav nav-pills pull-right">
+            <li role="presentation"><a>Add Engine oil</a></li>
+          </ul>
+        </nav>
+ </div>
+<form id="submitForm">
+<fieldset>
+
+        <label>Brand Name:</label>
+        <input type="text" id="brand" name="brand" placeholder="Ex: Shell" /><br>
+
+        <label>Price:</label>
+        <input type="text" id="price" name="price" placeholder="Ex: 310" /><br>
+
+        <label>Quantity:</label>
+        <input type="text" id="quantity" name="quantity" placeholder="Ex: 1 litre" /><br>
+
+         <label>Specification:</label>
+        <input type="text" id="specification" name="specification" placeholder="20W40" /><br>
+
+        <label>About it:</label>
+        <input type="text" id="aboutEngineOil" name="aboutEngineOil" placeholder="Semi-synthetic" /><br>
+
+        <input type="submit" id="submitValue" value="Add">
+
+</fieldset>
+</form>
+
+
+<button id="update">Update</button>
+<button id="delete">Delete</button>
+
+<table id="tableList" border='1'>
+   <tr>
+      <th>Engine Oil</th>
+   </tr>
+   <tr id="listBodyRowHead">
+                <th>Brand</th>
+                <th>Price</th>
+                <th>Quantity</th>
+                <th>Specification</th>
+                <th>About</th>
+                <th>Id</th>
+   </tr>
+
+   <tbody id="listBody">           
+  </tbody>
+</table>
+
+<script>
+  $(document).ready(function(){
+     getTableList();
+    });
+    $("#update").click(function(){
+         $("#brand").val($('.selectedTableRow').find("td").eq(0).html());
+          $("#price").val($('.selectedTableRow').find("td").eq(1).html());
+          $("#quantity").val($('.selectedTableRow').find("td").eq(2).html());
+          $("#specification").val($('.selectedTableRow').find("td").eq(3).html());
+          $("#aboutEngineOil").val($('.selectedTableRow').find("td").eq(4).html());
+         //$("#unique_Id").val($('.selectedTableRow').find("td").eq(4).html());
+         $("#submitValue").val("Update");
+     });
+    
+      $("#submitForm").submit(function(e){
+       addOrUpdateList();
+        e.preventDefault();
+     });
+    var tableArray;
+
+    $("#delete").click(function(){
+         var unique_Id = $('.selectedTableRow').find("td").eq(5).html();
+
+         var data = { 'unique_Id':unique_Id };
+
+        $.ajax({
+          url: '/admin/engineoil',
+          type: 'DELETE',
+          data: data,
+          success: function(result){
+            if (result.code == 200){
+              for(i=0; i<tableArray.length; i++){
+              if (tableArray[i].unique_Id == unique_Id){
+                tableArray.splice(i,1);
+                break;
+              }
+              }
+              $('.selectedTableRow').remove();   
+            }else{
+              alert('network error');
+            }
+          }
+              });
+     });
+    
+    function getTableList(){
+      $.ajax({
+          type: "GET",
+          url: "/admin/engineOil1",
+          dataType: "json",
+          success: function(result){
+            if (result.code == 200){
+              tableArray = result.data;
+              arrayToTable(tableArray);
+            }
+          }
+          
+        });
+    }
+    function addOrUpdateList(){
+      var brand = $("#brand").val();
+      var price = $("#price").val();
+      var quantity = $("#quantity").val();
+      var specification = $("specification").val();
+      var aboutEngineOil = $("#aboutEngineOil").val();
+      var update = false;
+      var unique_Id = '';
+      var url = "/admin/engineoil";
+      var type = "POST";
+      if ($("#submitValue").val() == "Update"){
+          var update = true;
+          unique_Id = $('.selectedTableRow').find("td").eq(5).html();
+      }else { update = false;}
+      var data = { 'brand': brand, 'price':price, 'quantity':quantity, 'specification': specification, 'aboutEngineOil':aboutEngineOil,'unique_Id':unique_Id, 'update':update };
+      ajaxCall(url,type,data,function(result){
+        if (result.code == 200)
+        {
+          if(update){
+              for(i=0; i<tableArray.length; i++){
+              if (tableArray[i].unique_Id == unique_Id){
+                tableArray[i].brand = brand;
+                tableArray[i].price = price;
+                tableArray[i].quantity = quantity;
+                tableArray[i].specification = specification;
+                tableArray[i].aboutEngineOil = aboutEngineOil;
+                arrayToTable(tableArray);
+                break;
+              }
+            }
+            $("#submitValue").val("Add");
+          }
+          else{
+            getTableList();
+          }
+         $("#submitForm").trigger('reset');
+        }
+        else{
+          alert("network problem");
+        }
+      });
+
+      
+
+    }
+
+function ajaxCall(url,type,data,callback){
+
+  $.ajax({
+          url: url,
+          type: type,
+          data: data,
+          success: callback
+        });
+
+}
+function arrayToTable(array){
+  $("#listBody").html("");
+
+  var data = array;
+              var trTable = '';
+
+          $.each(data, function(i,item){
+             trTable += '<tr><td>' + data[i].brand + '</td><td>' + data[i].price + '</td><td>' + data[i].quantity + '</td><td>' + data[i].specification + '</td><td>' + data[i].aboutEngineOil + '</td><td>' + data[i].unique_Id + '</td></tr>';
+          });
+          $('#listBody').append(trTable);
+          $("#listBody tr").click(function () {
+              $('.selectedTableRow').removeClass('selectedTableRow');
+              $(this).addClass("selectedTableRow");
+          });
+}
+
+
+</script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+

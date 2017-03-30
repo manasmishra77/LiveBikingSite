@@ -5,14 +5,7 @@ var logger = require('morgan');
 var cookieParser = require('cookie-parser');
 var bodyParser = require('body-parser');
 var mongoose = require('mongoose');
-var session = require('express-session');
-var passport = require('passport');
-var LocalStrategy = require('passport-local').Strategy;
-var GoogleStrategy = require('passport-google');
-var FacebookStrategy = require('passport-facebook');
 var expressHandlebar = require('express-handlebars');
-var expressValidator = require('express-validator');
-var flash = require('connect-flash');
 
 
 var index = require('./routes/index');
@@ -35,50 +28,23 @@ app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
 mongoose.connect('mongodb://127.0.0.1:27017/LiveBikingDataBase');
 
-//Express Session
-app.use(session({
-      secret: 'livebiking',
-      saveUninitialized: true,
-      resave: true
-}));
 
-//Passport Initialization
-app.use(passport.initialize());
-app.use(passport.session());
-
-//Express validator
-app.use(expressValidator({
-  errorFormatter: function(param, msg, value) {
-      var namespace = param.split('.')
-      , root    = namespace.shift()
-      , formParam = root;
-
-    while(namespace.length) {
-      formParam += '[' + namespace.shift() + ']';
-    }
-    return {
-      param : formParam,
-      msg   : msg,
-      value : value
-    };
-  }
-}));
 //Connect-flash
-app.use(flash());
+//app.use(flash());
 
-//global variable for flash message
+/*//global variable for flash message
 app.use(function (req, res, next){
   res.locals.success_msg = req.flash('success_msg');
   res.locals.error_msg = req.flash('error_msg');
   res.locals.error = req.flash('error');
   next();
 });
+*/
 
 
 app.use('/', index);
 app.use('/users', users);
 app.use('/admin', admin);
-app.use('/admin/*', admin);
 
 
 

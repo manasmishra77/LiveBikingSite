@@ -1,0 +1,157 @@
+
+<div class="container">
+        <nav>
+          <ul class="nav nav-pills pull-right">
+            <li role="presentation"><a>Add Engine oil</a></li>
+          </ul>
+        </nav>
+ </div>
+ <button id="edit">Edit</button>
+ <button id="delete">Delete</button>
+<button id="save">Save</button>
+
+<div id="submitForm">
+  Employee Id: <input type="text" id="unique_Id" readonly="1"> <br>
+  Name: <input type="text" id="fullName" placeholder="Name: Manas"> <br>
+  Email Id: <input type="text" id="emailId" placeholder="Email: mm77@gmail.com"> <br>
+  Position: <input type="text" id="post" placeholder="Post: Mehcanic"> <br>
+  Mobile Number: <input type="text" id="phoneNumber" placeholder="Mob: 9937882683"> <br>
+  Joining Status: <input type="text" id="joiningStatus" placeholder="Joined/Will join/Offer Letter Sent"> <br>
+  Joining Date: <input type="date" id="joiningDate" placeholder="Date"> <br>
+  Account Info: <input type="text" id="accountNumber" placeholder="31376666666"> <br>
+  <input type="text" id="branchName" placeholder="Sitapur"> <br>
+  <input type="text" id="ifscCode" placeholder="SBIN0002100"> <br>
+  Personal Info: <input type="text" id="emergencyContactNumber" placeholder="9898989898"> <br>
+  <input type="text" id="residenceName" placeholder="Ex: M R Classic Apartment"> <br>
+  <input type="text" id="roadOrLane" placeholder="Ex: 2nd Cross,3rd main"> <br>
+  <input type="text" id="majorLocality" placeholder="Ex: BTM"> <br>
+  <input type="text" id="city" placeholder="Ex: Bangalore"> <br>
+  <input type="text" id="state" placeholder="Ex: Odisha"> <br>
+  <input type="text" id="pin" placeholder="Ex: 756040"> <br>
+  <input type="text" id="contactPerson" placeholder="Contact person: Manas"> <br>
+  <input type="text" id="contactNumber" placeholder="Contact Number: 9794597945"> <br>
+</div>
+
+
+<script>
+  $(document).ready(function(){
+    var employeeDetailDict = localStorage.getItem("employeeDetailDict");
+
+    if(employeeDetailDict){
+      $("#submitForm").each(function() {
+        $(this).attr("readonly", "1");
+    });
+    }else{
+      $("#unique_Id").hide();
+    }
+    });
+
+    $("#delete").click(function(){
+         var unique_Id = employeeDetailDict["unique_Id"];
+         var data = { 'unique_Id':unique_Id };
+
+        $.ajax({
+          url: '/admin/engineoil',
+          type: 'DELETE',
+          data: data,
+          success: function(result){
+            if (result.code == 200){
+              
+              
+              
+            }else{
+              alert('network error');
+            }
+          }
+              });
+     });
+    $("#save").click(function(){
+      addOrUpdateList();
+    });
+    
+    function addOrUpdateList(){
+      var fullName = $("#fullName").val();
+      var emailId = $("#emailId").val();
+      var post = $("#post").val();
+      var phoneNumber = $("phoneNumber").val();
+      var joiningStatus = $("#joiningStatus").val();
+      var joiningDate = $("#joiningDate").val();
+      var accountInfo = {
+                        'accountNumber': $("#accountNumber").val(),
+                        'branchName': $("#branchName").val(),
+                        'ifscCode': $("#ifscCode").val()
+                        };
+      var personalInfo = { 'name': fullName,
+                          'address': {
+                            'residenceName': $("#residenceName").val(),
+                            'roadOrLane': $("#roadOrLane").val(),
+                            'majorLocality': $("#majorLocality").val(),
+                            'city': $("#city").val(),
+                            'state': $("#state").val(),
+                            'pin': $("#pin").val(),
+                            'contactPerson': $("#contactPerson").val(),
+                            'contactNumber': $("#contactNumber").val(),
+                          },
+                          'emergencyContactNumber': emergencyContactNumber
+                          };
+
+      var update = false;
+      var unique_Id = '';
+      var url = "/admin/addemployee";
+      var type = "POST";
+      if ($("#unique_Id").is(':visible')){
+          var update = true;
+          unique_Id = $("#unique_Id").val();
+      }else { update = false;}
+      var data = { 'fullName': fullName, 'emailId':emailId, 'post':post, 'phoneNumber': phoneNumber, 'joiningStatus':joiningStatus,'unique_Id':unique_Id, 'update':update, 'joiningDate': joiningDate, 'accountInfo': accountInfo, 'personalInfo': personalInfo};
+      ajaxCall(url,type,data,function(result){
+        if (result.code == 200)
+        {
+          if(update){
+              
+              }
+            }
+            $("#submitValue").val("Add");
+          }
+          else{
+            getTableList();
+          }
+         $("#submitForm").trigger('reset');
+        }
+        else{
+          alert("network problem");
+        }
+      });
+
+      
+
+    }
+
+function ajaxCall(url,type,data,callback){
+
+  $.ajax({
+          url: url,
+          type: type,
+          data: data,
+          success: callback
+        });
+
+}
+
+
+
+</script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+

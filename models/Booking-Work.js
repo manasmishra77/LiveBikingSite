@@ -1,23 +1,22 @@
 var mongoose = require('mongoose');
 
 var BookingWorkSchema = new mongoose.Schema({
-	userDetail: [{type: Schema.Types.ObjectId, ref: 'UserDetail'}],
-	serviceDetail: [{type: Schema.Types.ObjectId, ref: 'Service'}],
-	engineOilDetail: [{type: Schema.Types.ObjectId, ref: 'EngineOil'}],
-	sparePartsOrderedByUser: {type: String},
-	coupon: {type: String},
+	serviceDetail: {type: mongoose.Schema.Types.ObjectId, ref: 'Service'},
+	userDetail: {type: mongoose.Schema.Types.ObjectId, ref: 'UserDetail'},
+	engineOilDetail: {type: mongoose.Schema.Types.ObjectId, ref: 'EngineOil'},
+	sparePartsOrderedByUser: [String],
+	coupon: {type: mongoose.Schema.Types.ObjectId, ref: 'Offer'},
+	expectedDeliveryDate: {type: Date},
+	serviceStartingDate: {type: Date},
+	advancePaid: {type: Number},
 	updated_at: Date,
-	//progressStatus: [{type: Schema.Types.ObjectId, ref: 'BookingReport'}],
-	//paymentStatus: [{type: Schema.Types.ObjectId, ref: 'BookingPayment'}]
-	//bookingStatus: {type: String, required: true},
-	//bookingStatusReason: {type: String, required: true},
-	deliveryDate: {type: Date, required: true},
-	serviceStartingDate: {type: Date, required: true},
-	mechanic: [{type: Schema.Types.ObjectId, ref: 'MechanicDetail'}],
-	superVisor: [{type: Schema.Types.ObjectId, ref: 'EmployeeDetail'}]
+	unique_Id: String,
+	specialmention: String,
+	unique_Id: {type: String, unique: String},	
+
 });
 
-var BookingWork = mongoose.model('BookingWork', BookingWorkSchema);
+var BookingWork = mongoose.model('BookingWork', BookingWorkSchema,'BookingWork');
 
 module.exports = BookingWork;
 

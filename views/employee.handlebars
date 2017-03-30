@@ -1,0 +1,99 @@
+
+<div class="container">
+        <nav>
+          <ul class="nav nav-pills pull-right">
+            <li role="presentation"><a>Employee Detail</a></li>
+          </ul>
+        </nav>
+ </div>
+ <div class="container" id="addEmployee">
+        <nav>
+          <ul class="nav nav-pills pull-right">
+            <li role="presentation"><a>Add Employee</a></li>
+          </ul>
+        </nav>
+ </div>
+
+
+<table id="tableList" border='1'>
+   <tr>
+      <th>Employees</th>
+   </tr>
+   <tr id="listBodyRowHead">
+                <th>Name</th>
+                <th>EmailId</th>
+                <th>Contact Number</th>
+                <th>Id</th>
+   </tr>
+
+   <tbody id="listBody">           
+  </tbody>
+</table>
+
+<script>
+  $(document).ready(function(){
+     getTableList();
+    });
+  var tableArray;
+    
+    function getTableList(){
+      $.ajax({
+          type: "GET",
+          url: "/admin/employee1",
+          dataType: "json",
+          success: function(result){
+            if (result.code == 200){
+              tableArray = result.data;
+              arrayToTable(tableArray);
+            }
+          }
+          
+        });
+    }
+    $("#addEmployee").click(function(){
+    window.location.href = "/admin/addemployee";
+    });
+
+
+function ajaxCall(url,type,data,callback){
+
+  $.ajax({
+          url: url,
+          type: type,
+          data: data,
+          success: callback
+        });
+
+}
+function arrayToTable(array){
+  $("#listBody").html("");
+
+  var data = array;
+              var trTable = '';
+
+          $.each(data, function(i,item){
+             trTable += '<tr><td>' + data[i].fullname + '</td><td>' + data[i].emailId + '</td><td>' + data[i].phoneNumber +'</td><td>' + data[i].unique_Id + '</td></tr>';
+          });
+          $('#listBody').append(trTable);
+          $("#listBody tr").click(function () {
+              $('.selectedTableRow').removeClass('selectedTableRow');
+              $(this).addClass("selectedTableRow");
+          });
+}
+
+
+</script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+

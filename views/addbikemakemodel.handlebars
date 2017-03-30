@@ -1,15 +1,15 @@
 <table>
   <tr>
-    <th>id</th><th>Bike Make and model</th>
+    <th>Bike Make and model</th>
   </tr>
   {{#each bikelist}}
     <tr>
-      <td><%= bikelist[i].company%></td>
-      <td><%= bikelist[i].model %></td>
-      <td><%= bikelist[i].modelSpecification %></td>
-      <td><%= bikelist[i].yearOfManufacture %></td>
-      <td><%= bikelist[i].cc %></td>
-      <td><%= bikelist[i].aboutModel %></td>
+      <td>{{company}}</td>
+      <td>{{model}}</td>
+      <td>{{modelSpecification}}</td>
+      <td>{{yearOfManufacture}}</td>
+      <td>{{cc}}</td>
+      <td>{{aboutModel}}</td>
     </tr>
   {{/each}}
 </table>
@@ -20,16 +20,28 @@
           </ul>
         </nav>
  </div>
-<form action="/addnew" method="post">
+<form action="/admin/addbike" method="post">
 <fieldset>
 
-        <label >Email:</label>
-        <input type="email" id="email" name="emailId" placeholder="Enter your email address" /><br>
+        <label>Company:</label>
+        <input type="text" id="company" name="company" placeholder="Ex: TVS" /><br>
 
-        <label for="password">Password:</label>
-        <input type="password" id="password" name="password" placeholder="Enter your password" /><br>
+        <label>Model:</label>
+        <input type="text" id="model" name="model" placeholder="Ex: Apache" /><br>
 
-        <input type="submit" value="Sign In">
+        <label>Model Specification:</label>
+        <input type="text" id="modelspecification" name="modelspecification" placeholder="Ex: RTR-180" /><br>
+
+         <label>Year of manufacture:</label>
+        <input type="text" id="year" name="year" placeholder="Ex: 2012" /><br>
+
+         <label>CC:</label>
+        <input type="text" id="cc" name="cc" placeholder="Ex: 180" /><br>
+
+         <label>About Model:</label>
+        <input type="text" id="about" name="about" placeholder="Ex: With self-start" /><br>
+
+        <input type="submit" value="Add">
 
 </fieldset> 
 </form>
