@@ -34,9 +34,9 @@ module.exports.getListOfEmoloyees = function(callback){
 module.exports.updateEmployee = function(id, newEmployee, callback){
 		var updatedEmployee = {
 			fullname: newEmployee.fullname,
-			emailId: newEmployee.fullname,
-			post: newEmployee.fullname,
-			phoneNumber: newEmployee.fullname,
+			emailId: newEmployee.emailId,
+			post: newEmployee.post,
+			phoneNumber: newEmployee.phoneNumber,
 			personalInfo: newEmployee.personalInfo,
 			joiningStatus: newEmployee.joiningStatus,
 			joiningDate: newEmployee.joiningDate,
@@ -49,9 +49,9 @@ module.exports.updateEmployee = function(id, newEmployee, callback){
 module.exports.addEmployee = function(newEmployee, callback){
 		var newerEmployee = EmployeeDetail({
 			fullname: newEmployee.fullname,
-			emailId: newEmployee.fullname,
-			post: newEmployee.fullname,
-			phoneNumber: newEmployee.fullname,
+			emailId: newEmployee.emailId,
+			post: newEmployee.post,
+			phoneNumber: newEmployee.phoneNumber,
 			personalInfo: newEmployee.personalInfo,
 			joiningStatus: newEmployee.joiningStatus,
 			joiningDate: newEmployee.joiningDate,
@@ -64,7 +64,7 @@ module.exports.addEmployee = function(newEmployee, callback){
 
 module.exports.getByUniqueId = function(uniqueId, callback){
 	var uniqueIdDict = {unique_Id: uniqueId}
-	EmployeeDetail.findOne(uniqueId,callback);
+	EmployeeDetail.findOne(uniqueIdDict,callback);
 }
 module.exports.remove = function(id, callback){
 	EngineOil.remove({ _id: id}, callback);

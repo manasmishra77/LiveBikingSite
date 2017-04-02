@@ -48,8 +48,8 @@ module.exports.addAddress = function(newAddress, callback){
 			updated_at: new Date(),
 	  });
 	newerAddress.save(callback);
-	}	
-}
+}	
+
 
 module.exports.getById = function(id, callback){
 	UserAddress.findById(id,callback);

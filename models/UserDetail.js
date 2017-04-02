@@ -27,12 +27,15 @@ var userRegistered = new UserDetail({
 	unique_Id: newUser.unique_Id
 });
 userRegistered.save(callback);
-}
+};
+module.exports.updateUser = function(id, body, callback){
+	UserDetail.update({ _id: id }, { $set: body}, callback);
+};
 
 module.exports.getUserByUserName = function(username, callback){
 	var query = {emailId: username};
 	UserDetail.findOne(query, callback);
-}
+};
 
 module.exports.comparePassword = function(candidatePassword, hash, callback){
 	bcrypt.compare(candidatePassword, hash, function(err, isMatched) {
@@ -41,11 +44,11 @@ module.exports.comparePassword = function(candidatePassword, hash, callback){
     console.log('is matched = '+ isMatched);
     callback(null, isMatched);
 });
-}
+};
 module.exports.getUserById = function(id, callback){
 	UserDetail.findById(id, callback);
-}
+};
 module.exports.getUserByUniqueId = function(uniqueId, callback){
 	UserDetail.findOne(uniqueId,callback);
-}
+};
 

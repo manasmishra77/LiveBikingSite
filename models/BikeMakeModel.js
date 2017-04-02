@@ -43,7 +43,7 @@ module.exports.updateBikes = function(id, body, callback){
 		unique_Id: body.unique_Id,
 		updated_at: new Date(),
 	}
-	BikeMakeModel.update({ _id: id }, { $set: newBody}, callback)
+	BikeMakeModel.update({ _id: id }, { $set: newBody}, callback);
 }
 module.exports.getByUniqueId = function(uniqueId, callback){
 	var uniqueIdDict = {unique_Id: uniqueId}

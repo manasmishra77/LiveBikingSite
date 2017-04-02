@@ -43,8 +43,8 @@ if(token){
 		if(err){
 			return res.redirect('/admin');
 		}else{
-			req.decoded = decoded
-			next()
+			req.decoded = decoded;
+			next();
 		}
 	});
 }else{
@@ -177,7 +177,7 @@ router.post('/dashboard/employee', function(req, res){
 							}else{
 								res.json({ "code": 200, "status": "success", "data": {"updated_at": employee.updated_at, "unique_Id": employee.unique_Id}});
 							}
-							}
+							
 						});
 					}
 				});
@@ -492,7 +492,7 @@ function generateUniqueId(model,size,callback){
 			callback("retry");
 		}else{
 			if(user){
-				generateUniqueId(model,callback);
+				generateUniqueId(model,size,callback);
 
 			}else{
 				callback(uniqueId);

@@ -5,6 +5,9 @@ var mongoose = require('mongoose');
 var nev = require('email-verification')(mongoose);
 var newOffers = require('../models/offers.js');
 var utilities = require('../public/utilities/GeneralMethods.js');
+var jwt    = require('jsonwebtoken');
+var nodemailer = require('nodemailer');
+
 
 //Configuration for email verification
 nev.configure({
@@ -28,10 +31,38 @@ nev.configure({
 }, function(error, options){
 });
 // generating the model, pass the User model defined earlier
-nev.generateTempUserModel(newUser);
+nev.generateTempUserModel(newUser, function(err, tempUserModel) {
+  if (err) {
+    console.log(err);
+    return;
+  }
+});
 
-router.get('/', fuction(req, res){
-    res.render('landingPage');
+router.get('/', function(req, res){
+    var token = req.body.token || req.query.token || req.headers['x-acess-token'];
+    if(token){
+        jwt.verify(token, 'UserSecret', function(err, decoded){
+        if(err){
+            return res.render('landingPage');
+        }else{
+            req.decoded = decoded;
+            var id = decoded.payload.id;
+            newUser.getUserById(id, function(err, user){
+                if(err){
+                    return res.render('landingPage');
+                }
+                if(user){
+                    res.render('landingPage', { user: 'user'});
+                }else{
+                    return res.render('landingPage');                
+                }
+            });
+        }
+    });
+    }else{
+        return res.render('landingPage');
+    }
+    
 });
 
 //registration
@@ -129,7 +160,7 @@ router.post('/resendconfirmation', function(req, res){
       if (userFound) {
         res.json({"code": 200, "status": "Confirmation already Sent", "data": "Kindly check inbox for verification!"})
       } else {
-        res.json({"code": 500, "status": "Confirmation Expired", "data": "Kindly sign up again!!"})
+        res.json({"code": 302, "status": "Confirmation Expired", "data": "Kindly sign up again!!"})
               }
     });
 
@@ -155,26 +186,73 @@ router.get('/email-verification/:URL', function(req,res){
 });
 
 
-//authentication by login
+//authentication token by login
 router.post('/login', function(req, res){
         var userName = req.body.userName;
         var password = req.body.password;
-
-        if (userName == "admin@livebiking.in"){
-                if (password == "admin@678"){
-                         var token = jwt.sign({data: userName}, 'superSecret', {
-                                expiresIn: '96h' // expires in 96 hours
-                         });
-                        //res.json({ "code": 200, "status": "success", "token": token });
-                        res.json({"code": 200, "status": "success", "token": token});
-
-                }else{
-                        res.json({"code": 500, "status": "Error", "data": "Wrong password"});
+        if(userName){
+            newUser.getUserByUserName(userName,function(err,user){
+                if(err){
+                    return res.status(404).send('ERROR: confirming temp user FAILED');
                 }
-        }else{
-                        res.json({"code": 500, "status": "Error", "data": "Wrong use id"});
-        }
+                if(user){
+                    if(password == user.password){
+                        //Provide access token
+                         var token = jwt.sign({emailId: userName, id: user.id}, 'UserSecret', {
+                            expiresIn: '96h' // expires in 24 hours
+                        });
+                         res.json({"code": 200, "status": "success", "token": token});
+                    }else{
+                        res.json({"code": 200, "status": "wrong password", "data": "Wrong password"});
+                    }
+                }else{
+                        res.json({"code": 302, "status": "User not found", "data": "User not found!!"});
+                    }
+            });
+            }else{
+                        res.json({"code": 302, "status": "Enter emailId", "data": "emailId field is blank"});
+                    }
+      });
+router.post('/forgot', function(req,res){
+    var userName = req.body.userName;
+    var resetPassword = utilities.stringGen(size);
+if(userName){
+    newUser.getUserByUserName(userName, function(err,user){
+        if(err){
+                    return res.status(404).send('ERROR: search failed'+ err);
+                }
+                if(user){
+                    
+                    user.password = resetPassword;
+                    newUser.updateUser(user.id, user, function(err, data){
+                        if(err){
+                            return res.status(404).send('ERROR: update failed'+ err);
+                        }
+                        let transporter = nodemailer.createTransport({
+                                        service: 'gmail',
+                                        auth: {
+                                        user: 'verifynewuserlivebiking@gmail.com',
+                                        pass: '1234567890'
+                                        }
+                    });
+                    let mailOptions = {
+                            from: 'Do Not Reply <verifynewuserlivebiking@gmail.com>', // sender address
+                            to: userName, // list of receivers
+                            subject: 'Forgot Password', // Subject line
+                            text: 'Your new password is    '+ resetPassword, // plain text body
+
+                    };
+                    res.json({"code": 200, "status": "New password sent!!", "data": "New password sent!! Please check your mail "+userName });
+                    });
+                }else{
+                        res.json({"code": 200, "status": "User Not found", "data": "User not found!!"});
+                    }
+    });
+}
 });
+
+
+
 
 
 
